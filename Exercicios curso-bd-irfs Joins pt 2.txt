@@ -1,0 +1,185 @@
+Aqui está um novo desafio com 5 exercícios robustos que combinam quase tudo o que você praticou até agora: múltiplos tipos de JOIN, operadores de comparação 
+(>, <, >=, <=, <>, LIKE, ILIKE), funções de agregação (SUM, MAX, MIN) e subconsultas (IN, NOT IN).
+
+
+
+-- Tabela de Clientes
+CREATE TABLE clientes (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100),
+    cidade VARCHAR(50)
+);
+
+-- Tabela de Pedidos
+CREATE TABLE pedidos (
+    id SERIAL PRIMARY KEY,
+    cliente_id INT REFERENCES clientes(id),
+    status VARCHAR(30),
+    valor_total NUMERIC(10, 2),
+    descricao_pedido TEXT
+);
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 1: 
+Relatório Completo com Filtro de Desigualdade (INNER JOIN e <>)
+Enunciado: A equipe de atendimento precisa verificar os pedidos que não estão com o status "Cancelado". Escreva uma consulta que utilize INNER JOIN para exibir
+o nome do cliente, o status do pedido e a descrição do pedido, trazendo apenas os registros onde o status seja diferente de 'Cancelado'.
+
+
+SELECT cli.nome, ped.status, ped.descricao_pedido
+FROM clientes AS cli
+INNER JOIN pedidos AS ped ON cli.id = ped.cliente_id
+WHERE ped.status <> 'Cancelado';
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 2: 
+Faturamento Máximo por Cliente (INNER JOIN, MAX e GROUP BY)
+Enunciado: Descubra o maior valor de pedido registrado para cada cliente. Escreva uma consulta que retorne o nome do cliente e o maior valor de pedido 
+(MAX(ped.valor_total) com o alias maior_pedido), agrupando por cliente.
+
+
+SELECT cli.nome, MAX(ped.valor_total) AS maior_pedido
+FROM clientes AS cli
+INNER JOIN pedidos AS ped ON ped.cliente_id = cli.id
+GROUP BY cli.id;
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Exercício 3: 
+Limpeza de Texto e Valores Altos (INNER JOIN, REPLACE e >=)
+Enunciado: A administração quer analisar descrições de pedidos importantes. Escreva uma consulta que exiba o nome do cliente e a descrição do pedido, substituindo
+a palavra "Aguardando" por "Pendente" na descrição (usando REPLACE), para todos os pedidos que possuam um valor total maior ou igual a (>=) 1000.00.
+
+
+
+SELECT cli.nome, REPLACE(ped.descricao_pedido, 'Aguardando', 'Pendente') AS descricao_do_pedido
+FROM clientes AS cli
+INNER JOIN pedidos AS ped ON ped.cliente_id = cli.id
+WHERE ped.valor_total >= 1000.00;
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Exercício 4: 
+Clientes Sem Pedidos Cadastrados (LEFT JOIN e IS NULL)
+Enunciado: Para uma campanha de reativação, o setor de marketing quer identificar os clientes que nunca fizeram nenhum pedido. Escreva uma consulta utilizando 
+LEFT JOIN entre clientes e pedidos que retorne apenas o nome do cliente daqueles que possuem o ID do pedido correspondente nulo (IS NULL).
+
+
+SELECT cli.nome
+FROM clientes AS cli
+LEFT JOIN pedidos AS ped ON cli.id = ped.cliente_id
+WHERE ped.id IS NULL;
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Exercício 5: 
+Subconsulta Avançada com Exclusão (NOT IN)
+Enunciado: Escreva uma consulta para buscar o nome e a cidade de todos os clientes que não possuem nenhum pedido com o status "Entregue". Utilize uma subconsulta 
+no WHERE com o operador NOT IN selecionando os cliente_id da tabela pedidos onde o status seja 'Entregue'.
+
+
+
+SELECT cli.nome, cli.cidade
+FROM clientes AS cli
+WHERE cli.id NOT IN (
+	SELECT ped.cliente_id
+	FROM pedidos as ped
+	WHERE ped.status = 'Entregue' );
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Exercício 6: 
+Filtro de Média com Agregação (HAVING e AVG)
+Enunciado: A equipe financeira quer mapear os clientes que têm um ticket médio alto. Escreva uma consulta utilizando INNER JOIN entre clientes e pedidos que 
+retorne o nome do cliente e a média do valor dos seus pedidos (AVG(ped.valor_total) com o alias media_pedidos). Filtre utilizando HAVING para exibir apenas os 
+clientes cuja média de gasto por pedido seja maior que 400.00.
+
+
+SELECT cli.nome, AVG(ped.valor_total) AS media_pedidos
+FROM clientes AS cli
+INNER JOIN pedidos AS ped ON cli.id = ped.cliente_id
+GROUP BY cli.id, cli.nome
+HAVING AVG(ped.valor_total) > 400.00;
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Exercício 7: 
+Subconsulta com Comparação Numérica (WHERE com Subquery)
+Enunciado: Escreva uma consulta que retorne a descrição do pedido e o valor total de todos os pedidos que possuem um valor superior à média geral de todos os 
+pedidos cadastrados na tabela pedidos. Utilize uma subconsulta no WHERE calculando AVG(valor_total).
+
+
+SELECT ped.descricao_pedido, ped.valor_total
+FROM pedidos AS ped
+WHERE ped.valor_total (
+	SELECT AVG(ped.valor_total)
+	FROM pedidos AS ped;
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Exercício 8: 
+Busca Textual com Padrão no Início e Fim (ILIKE e OR)
+Enunciado: O suporte precisa identificar clientes cujos emails utilizam provedores específicos ou formatos antigos. Escreva uma consulta na tabela clientes que 
+retorne o nome e o email de todos os clientes cujo email termine com '@gmail.com' OU comece com a letra 'a' (de forma insensível a maiúsculas/minúsculas usando 
+ILIKE).
+
+
+SELECT cli.nome, cli.email
+FROM clientes AS cli 
+WHERE cli.email ILIKE '%@gmail.com' 
+OR cli.email ILIKE 'a%';
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 9: 
+Menor e Maior Valor por Cidade (JOIN, GROUP BY, MIN e MAX)
+Enunciado: Escreva uma consulta que traga o nome da cidade do cliente, o menor valor de pedido (MIN(ped.valor_total) como menor_pedido) e o maior valor de pedido 
+(MAX(ped.valor_total) como maior_pedido) registrados para clientes daquela cidade. Ordene o resultado pelo nome da cidade em ordem alfabética (ASC).
+
+
+
+SELECT cli.nome, cli.email, cli.cidade
+FROM clientes AS cli
+WHERE cli.id IN (
+    SELECT ped.cliente_id
+    FROM pedidos AS ped
+    WHERE ped.status IN ('Em Processamento', 'Enviado')
+);
+
+
+
+
+
+
+SELECT cli.nome, cli.email, cli.cidade
+FROM clientes AS cli
+WHERE cli.id IN (
+FROM pedidos AS ped
+WHERE ped.status IN ('Em Processamento', 'Enviado');

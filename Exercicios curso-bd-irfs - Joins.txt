@@ -1,0 +1,184 @@
+-- Tabela de Clientes
+CREATE TABLE clientes (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100),
+    cidade VARCHAR(50)
+);
+
+
+
+
+-- Tabela de Pedidos
+CREATE TABLE pedidos (
+    id SERIAL PRIMARY KEY,
+    cliente_id INT REFERENCES clientes(id),
+    status VARCHAR(30),
+    valor_total NUMERIC(10, 2),
+    descricao_pedido TEXT
+);
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 1: Filtros textuais avançados e Ordenação (ILIKE, Operadores de Comparação e ORDER BY)
+Enunciado: Escreva uma consulta SQL para listar todos os clientes da tabela clientes cujos nomes contenham a palavra "silva" (de forma insensível a 
+maiúsculas/minúsculas) e que sejam da cidade de "São Paulo" (utilizando o operador de comparação =). O resultado deve ser ordenado pelo nome do cliente 
+em ordem alfabética decrescente.
+
+SELECT cli.nome 
+FROM clientes AS cli 
+WHERE cli.nome ILIKE '%silva%'
+AND cli.cidade = 'São Paulo' 
+ORDER BY cli.cidade DESC;
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Exercício 2: Junção de Tabelas (JOIN e Operadores de Comparação)
+Enunciado: Precisamos identificar as compras de alto valor. Escreva uma consulta utilizando INNER JOIN que retorne o nome do cliente, o status do pedido 
+e o valor total, considerando apenas os pedidos que possuem um valor_total estritamente maior (>) que 1000.00.
+
+
+SELECT cli.nome, ped.status, ped.valor_total
+FROM clientes AS cli
+JOIN pedidos AS ped ON cli.id = ped.cliente_id
+WHERE ped.valor_total > 1000.00
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Exercício 3: Agrupamento e Estatísticas (GROUP BY e ORDER BY)
+Enunciado: A gestão quer saber o volume de vendas por status. Escreva uma consulta que agrupe os pedidos por status, calcule a soma total dos valores 
+(SUM(valor_total)) para cada grupo e ordene o resultado do maior valor acumulado para o menor.
+
+
+SELECT ped.status, SUM(ped.valor_total) AS total_soma
+FROM pedidos AS ped
+GROUP BY total_soma ORDER BY DESC;
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 4: Manipulação de Texto e Padrões (REPLACE e LIKE)
+Enunciado: Na tabela pedidos, a coluna descricao_pedido possui anotações antigas onde a palavra "Pendente" foi registrada incorretamente como "Aguardando".
+Escreva uma consulta que selecione a identificação do pedido e utilize a função REPLACE para substituir temporariamente a palavra "Aguardando" por "Pendente" 
+na exibição, filtrando apenas os registros cujos detalhes contenham o termo "urgente" (utilizando LIKE).
+
+
+
+SELECT ped.id, REPLACE(ped.descricao_pedido, 'Aguardando', 'Pendente') AS descricao_corrigida
+FROM pedidos AS ped
+WHERE ped.descricao_pedido LIKE '%urgente%';
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 5: Filtro com Condição Dupla e ILIKE
+Enunciado: Escreva uma consulta SQL para buscar o nome e a cidade de todos os clientes cujo nome comece com a letra "m" (de forma insensível a maiúsculas/minúsculas) 
+OU que sejam da cidade de "Rio de Janeiro". Ordene os resultados pelo nome em ordem alfabética crescente (ASC).
+
+
+SELECT cli.nome, cli.cidade
+FROM clientes AS cli
+WHERE cli.nome ILIKE 'm%'
+OR cli.cidade = 'Rio de Janeiro'
+ORDER BY cli.nome ASC;
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 6: Junção de Tabelas e Múltiplos Filtros (JOIN, WHERE e Operadores)
+Enunciado: A equipe financeira deseja ver os pedidos que estão com o status "Entregue" e que tiveram um valor total menor ou igual a (<=) 500.00. Escreva uma consulta 
+com INNER JOIN que exiba o nome do cliente, o status e o valor total desses pedidos.
+
+
+SELECT cli.nome, ped.status, ped.valor_total
+FROM clientes AS cli
+INNER JOIN pedidos AS ped ON cli.id = ped.cliente_id
+WHERE ped.status = 'Entregue' 
+AND ped.valor_total <= 500.00;
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 7: Agrupamento com Condição na Agregação (GROUP BY, COUNT e ORDER BY)
+Enunciado: Escreva uma consulta para contar a quantidade total de pedidos para cada cliente. A consulta deve retornar o nome do cliente e a quantidade de pedidos 
+(utilize COUNT(ped.id) com o alias qtd_pedidos). Ordene o resultado do cliente com mais pedidos para o com menos pedidos.
+
+
+SELECT cli.nome, COUNT(ped.id) AS qtd_pedidos
+FROM clientes as CLI
+JOIN pedidos AS ped ON cli.id = ped.cliente_id
+GROUP BY cli.id, cli.nome
+ORDER BY qtd_pedidos DESC;
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 8: Manipulação de Texto e Filtro Avançado (REPLACE e ILIKE)
+Enunciado: Suponha que o campo email de alguns clientes da tabela clientes tenha sido cadastrado com o domínio antigo @gmail.com e precisa ser exibido como 
+@empresa.com. Escreva uma consulta que retorne o nome do cliente e o email alterado (usando a função REPLACE), trazendo apenas os clientes cujo email termine 
+exatamente com a palavra "gmail.com" (de forma insensível a maiúsculas/minúsculas).
+
+
+
+SELECT cli.nome, REPLACE(cli.email, 'gmail.com', '@empresa.com') AS email_do_cliente
+FROM clientes AS cli
+WHERE cli.email ILIKE '%gmail.com';
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 9: Filtro de Datas e Agregação (WHERE com Datas e SUM)
+Enunciado: A diretoria quer avaliar o faturamento do último trimestre de 2023. Escreva uma consulta que retorne a soma total do valor dos pedidos (SUM(valor_total)) 
+com o alias faturamento_q4, considerando apenas os pedidos que foram realizados entre as datas '2023-10-01' e '2023-12-31'.
+
+
+
+SELECT SUM(ped.valor_total) AS faturamento_q4
+FROM pedidos AS ped
+WHERE ped.data BETWEEN '2023-10-01' AND '2023-12-31';
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 10: Filtrando Agrupamentos com HAVING (GROUP BY e HAVING)
+Enunciado: A equipe comercial quer identificar apenas as cidades que possuem um faturamento total expressivo. Escreva uma consulta com JOIN entre clientes e pedidos 
+que retorne o nome da cidade e a soma do valor total dos pedidos (SUM(ped.valor_total) como total_cidade), agrupado por cidade. Exiba apenas as cidades cujo valor 
+total acumulado seja maior do que 1500.00, ordenando do maior valor para o menor.
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Exercício 11: Subconsulta Básica com Operador IN (Subquery)
+Enunciado: Escreva uma consulta que retorne o nome e o email de todos os clientes que já fizeram pelo menos um pedido com o status "Cancelado". Em vez de usar JOIN, 
+utilize uma subconsulta no WHERE com o operador IN selecionando os cliente_id da tabela pedidos onde o status seja 'Cancelado'.
