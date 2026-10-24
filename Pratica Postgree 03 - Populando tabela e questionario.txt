@@ -1,0 +1,311 @@
+================================================================================
+
+          HISTÓRICO DE EXERCÍCIO PRÁTICO - ADMINISTRADOR DE BANCO DE DADOS
+
+                           IFRS - POSTGRESQL
+
+================================================================================
+
+
+
+1. RESUMO E OBJETIVO DA ATIVIDADE
+
+--------------------------------------------------------------------------------
+
+Este registro documenta a atividade prática realizada no âmbito do curso de
+
+Administrador de Banco de Dados do IFRS (Instituto Federal do Rio Grande do Sul).
+
+O objetivo principal do exercício foi praticar a definição de esquemas (DDL),
+
+a manipulação de dados (DML) e a consulta de informações (DQL) em um Sistema de
+
+Gerenciamento de Banco de Dados Relacional (SGBD) utilizando o PostgreSQL.
+
+
+
+A atividade foi estruturada em duas etapas principais:
+
+  1. Criação do esquema de banco de dados para um Sistema de Gerenciamento
+
+     de Restaurante e o preenchimento inicial dos dados de teste.
+
+  2. Resolução de um questionário prático de fixação com consultas SQL variadas.
+
+
+
+--------------------------------------------------------------------------------
+
+2. IMPORTÂNCIA PRÁTICA DO EXERCÍCIO
+
+--------------------------------------------------------------------------------
+
+A modelagem e implementação de uma estrutura relacional para restaurante
+
+demonstra a aplicação direta de conceitos fundamentais da ciência da computação
+
+e administração de banco de dados no mundo real:
+
+
+
+  - Integridade Referencial: O uso de chaves estrangeiras (FOREIGN KEY) conecta
+
+    clientes, mesas, pedidos e itens do menu, garantindo a consistência dos dados.
+
+  - Tipos de Dados e Restrições: O uso de SERIAL para auto-incremento, DECIMAL
+
+    para precisão financeira, TIMESTAMP para datas e restrições NOT NULL assegura
+
+    a qualidade e segurança das informações armazenadas.
+
+  - Tomada de Decisão com SQL: As consultas elaboradas (filtragem com WHERE,
+
+    funções de agregação como COUNT e SUM, ordenação com ORDER BY, e manipulação
+
+    de tempo com INTERVAL) capacitam o sistema a responder rapidamente a
+
+    demandas de negócios, tais como relatórios de vendas, controle de ocupação
+
+    e gestão de cardápio.
+
+
+
+--------------------------------------------------------------------------------
+
+3. SCRIPT DDL E DML (CRIAÇÃO E POVOAMENTO DAS TABELAS)
+
+--------------------------------------------------------------------------------
+
+
+
+-- Tabela de clientes
+
+CREATE TABLE clientes (
+
+  id_cliente SERIAL PRIMARY KEY,
+
+  nome VARCHAR(255) NOT NULL,
+
+  telefone VARCHAR(20) NOT NULL,
+
+  email VARCHAR(255) NOT NULL
+
+);
+
+
+
+-- Tabela de mesas
+
+CREATE TABLE mesas (
+
+  id_mesa SERIAL PRIMARY KEY,
+
+  capacidade INTEGER NOT NULL,
+
+  disponibilidade BOOLEAN NOT NULL
+
+);
+
+
+
+-- Tabela de pedidos
+
+CREATE TABLE pedidos (
+
+  id_pedido SERIAL PRIMARY KEY,
+
+  id_cliente INTEGER REFERENCES clientes(id_cliente) NOT NULL,
+
+  id_mesa INTEGER REFERENCES mesas(id_mesa),
+
+  data_pedido TIMESTAMP NOT NULL,
+
+  status_pedido VARCHAR(20) NOT NULL
+
+);
+
+
+
+-- Tabela de itens do menu
+
+CREATE TABLE itens_menu (
+
+  id_item SERIAL PRIMARY KEY,
+
+  nome VARCHAR(255) NOT NULL,
+
+  descricao TEXT,
+
+  preco DECIMAL(10, 2) NOT NULL
+
+);
+
+
+
+-- Tabela de pedidos de itens do menu
+
+CREATE TABLE pedidos_itens_menu (
+
+  id_pedido INTEGER REFERENCES pedidos(id_pedido) NOT NULL,
+
+  id_item INTEGER REFERENCES itens_menu(id_item) NOT NULL,
+
+  quantidade INTEGER NOT NULL,
+
+  preco_unitario DECIMAL(10, 2) NOT NULL
+
+);
+
+
+
+-- Inserir alguns clientes
+
+INSERT INTO clientes (nome, telefone, email)
+
+VALUES
+
+  ('João Silva', '(11) 9999-8888', 'joao.silva@gmail.com'),
+
+  ('Maria Santos', '(11) 9876-5432', 'maria.santos@hotmail.com'),
+
+  ('Pedro Albuquerque', '(11) 91234-5678', 'pedro.albuquerque@yahoo.com');
+
+
+
+-- Inserir algumas mesas
+
+INSERT INTO mesas (capacidade, disponibilidade)
+
+VALUES
+
+  (2, true),
+
+  (4, true),
+
+  (6, true),
+
+  (8, true);
+
+
+
+-- Inserir alguns itens do menu
+
+INSERT INTO itens_menu (nome, descricao, preco)
+
+VALUES
+
+  ('Hambúrguer', 'Pão, carne, queijo, alface, tomate e molho especial', 20.00),
+
+  ('Pizza', 'Molho de tomate, mussarela, presunto, champignon e azeitona', 35.00),
+
+  ('Salmão grelhado', 'Salmão grelhado com legumes e arroz', 50.00);
+
+
+
+-- Inserir um pedido de cliente
+
+INSERT INTO pedidos (id_cliente, id_mesa, data_pedido, status_pedido)
+
+VALUES
+
+  (1, 2, NOW(), 'Em andamento');
+
+
+
+-- Inserir itens do menu em um pedido
+
+INSERT INTO pedidos_itens_menu (id_pedido, id_item, quantidade, preco_unitario)
+
+VALUES
+
+  (1, 1, 2, 20.00),
+
+  (1, 3, 1, 50.00);
+
+
+
+--------------------------------------------------------------------------------
+
+4. QUESTIONÁRIO DE FIXAÇÃO E RESOLUÇÕES SQL
+
+--------------------------------------------------------------------------------
+
+
+
+01. Qual é o comando SQL para selecionar todos os nomes de clientes da tabela clientes?
+
+    SELECT nome FROM clientes;
+
+
+
+02. Qual é o comando SQL para criar a tabela de clientes no Sistema de gerenciamento de restaurantes?
+
+    CREATE TABLE clientes (
+
+      id_cliente SERIAL PRIMARY KEY,
+
+      nome VARCHAR(255) NOT NULL,
+
+      telefone VARCHAR(20) NOT NULL,
+
+      email VARCHAR(255) NOT NULL
+
+    );
+
+
+
+03. Qual é o comando SQL para contar quantas mesas têm capacidade para mais de 4 pessoas?
+
+    SELECT COUNT(capacidade) FROM mesas WHERE capacidade > 4;
+
+
+
+04. Como deletar da tabela pedidos todos os registros de pedidos que foram feitos há mais de um ano?
+
+    DELETE FROM pedidos WHERE data_pedido < NOW() - INTERVAL '1 year';
+
+
+
+05. Qual é o comando SQL para selecionar o nome e preço de todos os itens do menu que custam mais de R$ 30 no Sistema de gerenciamento de restaurantes?
+
+    SELECT nome, preco FROM itens_menu WHERE preco > 30;
+
+
+
+06. Qual é o comando SQL para inserir uma nova mesa com capacidade para 10 pessoas e disponibilidade "true" no Sistema de gerenciamento de restaurantes?
+
+    INSERT INTO mesas (capacidade, disponibilidade) VALUES (10, true);
+
+
+
+07. Qual é o comando SQL para selecionar o nome e preço de todos os itens do menu que têm um nome que começa com a letra "P" no Sistema de gerenciamento de restaurantes?
+
+    SELECT nome, preco FROM itens_menu WHERE nome LIKE 'P%';
+
+
+
+08. Qual é o comando SQL para selecionar a mesa com a menor capacidade disponível no Sistema de gerenciamento de restaurantes?
+
+    SELECT id_mesa, capacidade FROM mesas WHERE disponibilidade = true ORDER BY capacidade ASC LIMIT 1;
+
+
+
+09. Qual é o comando SQL para encontrar o número total de clientes registrados no sistema?
+
+    SELECT COUNT(*) FROM clientes;
+
+
+
+10. Qual é o comando SQL para selecionar o número total de itens do menu que foram pedidos no Sistema de gerenciamento de restaurantes?
+
+    SELECT SUM(quantidade) FROM pedidos_itens_menu;
+
+
+
+================================================================================
+
+Elaborado por: Bruno Cesar da Silva Garcia
+
+Aluno de Ciência da Computação e Administração de Banco de Dados
+
+================================================================================
