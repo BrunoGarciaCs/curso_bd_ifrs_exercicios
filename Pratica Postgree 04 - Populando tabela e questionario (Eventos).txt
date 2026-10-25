@@ -1,0 +1,178 @@
+================================================================================
+
+         HISTÓRICO DE EXERCÍCIO PRÁTICO - ADMINISTRADOR DE BANCO DE DADOS
+
+                             IFRS - POSTGRESQL
+
+================================================================================
+
+
+
+1. RESUMO E OBJETIVO DA ATIVIDADE
+
+--------------------------------------------------------------------------------
+
+Este registro documenta a atividade prática realizada no âmbito do curso de
+Administrador de Banco de Dados do IFRS (Instituto Federal do Rio Grande do Sul).
+O objetivo principal do exercício foi praticar a definição de esquemas (DDL),
+a manipulação de dados (DML) e a consulta de informações (DQL) em um Sistema de
+Gerenciamento de Banco de Dados Relacional (SGBD) utilizando o PostgreSQL.
+
+
+
+A atividade foi estruturada em duas etapas principais:
+  1. Criação do esquema de banco de dados para um Sistema de Gerenciamento
+     de Eventos e o preenchimento inicial dos dados de teste.
+  2. Resolução de um questionário prático de fixação com consultas SQL variadas.
+
+
+
+--------------------------------------------------------------------------------
+2. IMPORTÂNCIA PRÁTICA DO EXERCÍCIO
+--------------------------------------------------------------------------------
+
+A modelagem e implementação de uma estrutura relacional para gerenciamento de
+eventos demonstra a aplicação direta de conceitos fundamentais da ciência da
+computação e administração de banco de dados no mundo real:
+
+
+
+  - Integridade Referencial: O uso de chaves estrangeiras (FOREIGN KEY) conecta
+    participantes, eventos e inscrições, garantindo a consistência dos dados.
+  - Tipos de Dados e Restrições: O uso de SERIAL para auto-incremento, NUMERIC
+    para precisão financeira, DATE e TIMESTAMP para datas, e restrições NOT NULL
+    assegura a qualidade e segurança das informações armazenadas.
+  - Tomada de Decisão com SQL: As consultas elaboradas (filtragem com WHERE e
+    subconsultas, junções com JOIN, funções de agregação como COUNT e AVG, e
+    agrupamento com GROUP BY e HAVING) capacitam o sistema a responder rapidamente
+    a demandas de negócios, tais como relatórios de inscrições, controle de
+    participantes e gestão de eventos.
+
+
+
+--------------------------------------------------------------------------------
+3. SCRIPT DDL E DML (CRIAÇÃO E POVOAMENTO DAS TABELAS)
+--------------------------------------------------------------------------------
+
+
+
+-- Tabela de eventos
+CREATE TABLE eventos (
+id_evento SERIAL PRIMARY KEY,
+nome_evento VARCHAR(255) NOT NULL,
+data_evento DATE NOT NULL,
+local_evento VARCHAR(255) NOT NULL,
+descricao_evento TEXT,
+preco_evento NUMERIC(8,2) NOT NULL
+);
+
+
+
+-- Tabela de participantes
+CREATE TABLE participantes (
+id_participante SERIAL PRIMARY KEY,
+nome_participante VARCHAR(255) NOT NULL,
+email_participante VARCHAR(255) NOT NULL,
+telefone_participante VARCHAR(20) NOT NULL,
+idade_participante INTEGER,
+empresa_participante VARCHAR(255)
+);
+
+
+
+-- Tabela de inscrições
+CREATE TABLE inscricoes (
+id_inscricao SERIAL PRIMARY KEY,
+id_participante INTEGER REFERENCES participantes (id_participante),
+id_evento INTEGER REFERENCES eventos (id_evento),
+data_inscricao TIMESTAMP DEFAULT NOW()
+);
+
+
+
+-- Inserir alguns eventos
+INSERT INTO eventos (nome_evento, data_evento, local_evento, descricao_evento, preco_evento)
+VALUES ('Conferência de Tecnologia', '2023-09-01', 'Centro de Convenções', 'Uma conferência para discutir as últimas tendências em tecnologia', 250.00);
+
+INSERT INTO eventos (nome_evento, data_evento, local_evento, descricao_evento, preco_evento)
+VALUES ('Show de Rock', '2023-07-15', 'Estádio de Futebol', 'Um show de rock com bandas famosas', 80.00);
+
+
+
+-- Inserir alguns participantes
+INSERT INTO participantes (nome_participante, email_participante, telefone_participante, idade_participante, empresa_participante)
+VALUES ('João Silva', 'joao.silva@email.com', '(11) 99999-9999', 32, 'Empresa X');
+
+INSERT INTO participantes (nome_participante, email_participante, telefone_participante, idade_participante, empresa_participante)
+VALUES ('Maria Souza', 'maria.souza@email.com', '(21) 99999-9999', 28, '');
+
+
+
+-- Inserir algumas inscrições
+INSERT INTO inscricoes (id_participante, id_evento, data_inscricao)
+VALUES (1, 1, '2023-08-01 14:30:00');
+
+INSERT INTO inscricoes (id_participante, id_evento, data_inscricao)
+VALUES (2, 2, '2023-06-15 10:00:00');
+
+
+
+--------------------------------------------------------------------------------
+4. QUESTIONÁRIO DE FIXAÇÃO E RESOLUÇÕES SQL
+--------------------------------------------------------------------------------
+
+
+
+01. Qual é o comando SQL para excluir todos os participantes que se inscreveram em eventos que acontecerão no local "Centro de Convenções" no Sistema de gerenciamento de eventos?
+    DELETE FROM participantes WHERE id_participante IN (SELECT id_participante FROM inscricoes WHERE id_evento IN (SELECT id_evento FROM eventos WHERE local_evento='Centro de Convenções'));
+
+
+
+02. Qual é o comando SQL para selecionar o nome e data dos eventos que têm mais de 100 participantes no Sistema de gerenciamento de eventos?
+    SELECT nome_evento, data_evento FROM eventos JOIN inscricoes ON eventos.id_evento=inscricoes.id_evento GROUP BY eventos.id_evento HAVING COUNT(*) > 100;
+
+
+
+03. Qual é o comando SQL para selecionar o nome e telefone dos participantes que se inscreveram em eventos que acontecerão no local "Centro de Convenções" no Sistema de gerenciamento de eventos?
+    SELECT nome_participante, telefone_participante FROM participantes JOIN inscricoes ON participantes.id_participante=inscricoes.id_participante JOIN eventos ON inscricoes.id_evento=eventos.id_evento WHERE local_evento='Centro de Convenções';
+
+
+
+04. Como exibir a idade média dos participantes inscritos em cada evento?
+    SELECT id_evento, AVG(idade_participante) FROM participantes JOIN inscricoes ON participantes.id_participante = inscricoes.id_participante GROUP BY id_evento;
+
+
+
+05. Qual consulta SQL lista todos os eventos com preço inferior a R$ 100,00?
+    SELECT * FROM eventos WHERE preco_evento < 100.00;
+
+
+
+06. Qual é o comando SQL para selecionar o nome e email dos participantes que se inscreveram em mais de um evento no Sistema de gerenciamento de eventos?
+    SELECT participantes.nome_participante, participantes.email_participante FROM participantes JOIN inscricoes ON participantes.id_participante=inscricoes.id_participante GROUP BY participantes.id_participante HAVING COUNT(*) > 1;
+
+
+
+07. Qual é o comando SQL para excluir o evento com id_evento = 3 do Sistema de gerenciamento de eventos?
+    DELETE FROM eventos WHERE id_evento=3;
+
+
+
+08. Qual é o comando SQL para atualizar o nome do participante com id_participante = 2 para "Lucas" no Sistema de gerenciamento de eventos?
+    UPDATE participantes SET nome_participante='Lucas' WHERE id_participante=2;
+
+
+
+09. Como encontrar o número total de inscrições para cada evento?
+    SELECT id_evento, COUNT(id_inscricao) FROM inscricoes GROUP BY id_evento;
+
+
+
+10. Qual é o comando SQL para selecionar o nome e a descrição dos eventos que acontecerão na cidade "São Paulo" no Sistema de gerenciamento de eventos?
+    SELECT nome_evento, descricao_evento FROM eventos WHERE local_evento LIKE '%São Paulo%';
+
+
+
+================================================================================
+Elaborado por: Bruno Cesar da Silva Garcia
+Aluno de Ciência da Computação e Administração de Banco de Dados
