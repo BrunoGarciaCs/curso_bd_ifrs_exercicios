@@ -1,0 +1,347 @@
+================================================================================
+
+          HISTÓRICO DE EXERCÍCIO PRÁTICO - ADMINISTRADOR DE BANCO DE DADOS
+
+                            IFRS - POSTGRESQL
+
+================================================================================
+
+
+
+1. RESUMO E OBJETIVO DA ATIVIDADE
+
+--------------------------------------------------------------------------------
+
+Este registro documenta a atividade prática realizada no âmbito do curso de
+
+Administrador de Banco de Dados do IFRS (Instituto Federal do Rio Grande do Sul).
+
+O objetivo principal do exercício foi praticar a definição de esquemas (DDL),
+
+a manipulação de dados (DML) e a consulta de informações (DQL) em um Sistema de
+
+Gerenciamento de Banco de Dados Relacional (SGBD) utilizando o PostgreSQL.
+
+
+
+A atividade foi estruturada em duas etapas principais:
+
+  1. Criação do esquema de banco de dados para um Sistema de Gerenciamento
+
+     de Hotelaria e o preenchimento inicial dos dados de teste.
+
+  2. Resolução de um questionário prático de fixação com consultas SQL variadas.
+
+
+
+--------------------------------------------------------------------------------
+
+2. IMPORTÂNCIA PRÁTICA DO EXERCÍCIO
+
+--------------------------------------------------------------------------------
+
+A modelagem e implementação de uma estrutura relacional para o sistema hoteleiro
+
+demonstra a aplicação direta de conceitos fundamentais da ciência da computação
+
+e administração de banco de dados no mundo real:
+
+
+
+  - Integridade Referencial: O uso de chaves estrangeiras (FOREIGN KEY) e a
+
+    tabela associativa de N:N (reservas_quartos) conecta clientes, reservas e
+
+    quartos, garantindo a consistência dos dados do hotel.
+
+  - Tipos de Dados e Restrições: O uso de INT, VARCHAR com limitação de caracteres,
+
+    DECIMAL para valores de diárias, datas com DATE e restrições NOT NULL e PRIMARY KEY
+
+    assegura a qualidade e a segurança das informações armazenadas.
+
+  - Tomada de Decisão com SQL: As consultas elaboradas (junção de tabelas com JOIN,
+
+    funções de agregação como SUM, AVG e COUNT, subconsultas, agrupamento com GROUP BY
+
+    e manipulação de datas) capacitam o sistema a responder rapidamente a demandas
+
+    de negócios, tais como relatórios de faturamento, ocupação e gestão de hóspedes.
+
+
+
+--------------------------------------------------------------------------------
+
+3. SCRIPT DDL E DML (CRIAÇÃO E POVOAMENTO DAS TABELAS)
+
+--------------------------------------------------------------------------------
+
+
+
+-- Tabela de clientes
+
+CREATE TABLE clientes (
+
+  id_cliente INT PRIMARY KEY,
+
+  nome_cliente VARCHAR(50) NOT NULL,
+
+  telefone VARCHAR(20) NOT NULL,
+
+  email VARCHAR(50) NOT NULL,
+
+  endereco VARCHAR(100) NOT NULL
+
+);
+
+
+
+-- Tabela de reservas
+
+CREATE TABLE reservas (
+
+  id_reserva INT PRIMARY KEY,
+
+  id_cliente INT NOT NULL,
+
+  data_inicio DATE NOT NULL,
+
+  data_fim DATE NOT NULL,
+
+  FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
+
+);
+
+
+
+-- Tabela de quartos
+
+CREATE TABLE quartos (
+
+  id_quarto INT PRIMARY KEY,
+
+  descricao VARCHAR(100) NOT NULL,
+
+  capacidade INT NOT NULL,
+
+  diaria DECIMAL(8, 2) NOT NULL
+
+);
+
+
+
+-- Tabela associativa de reservas e quartos
+
+CREATE TABLE reservas_quartos (
+
+  id_reserva INT NOT NULL,
+
+  id_quarto INT NOT NULL,
+
+  data_entrada DATE NOT NULL,
+
+  data_saida DATE NOT NULL,
+
+  PRIMARY KEY (id_reserva, id_quarto),
+
+  FOREIGN KEY (id_reserva) REFERENCES reservas(id_reserva),
+
+  FOREIGN KEY (id_quarto) REFERENCES quartos(id_quarto)
+
+);
+
+
+
+-- Inserir alguns clientes
+
+INSERT INTO clientes (id_cliente, nome_cliente, telefone, email, endereco)
+
+VALUES 
+
+  (1, 'João Silva', '(11) 5555-5555', 'joao.silva@gmail.com', 'Rua A, 123 - São Paulo'),
+
+  (2, 'Maria Santos', '(21) 5555-5555', 'maria.santos@hotmail.com', 'Rua B, 456 - Rio de Janeiro'),
+
+  (3, 'Pedro Souza', '(31) 5555-5555', 'pedro.souza@yahoo.com.br', 'Rua C, 789 - Belo Horizonte');
+
+
+
+-- Inserir alguns quartos
+
+INSERT INTO quartos (id_quarto, descricao, capacidade, diaria)
+
+VALUES 
+
+  (1, 'Quarto simples com cama de solteiro', 1, 100.00),
+
+  (2, 'Quarto simples com cama de casal', 2, 150.00),
+
+  (3, 'Quarto de luxo com cama de casal', 2, 250.00);
+
+
+
+-- Inserir algumas reservas
+
+INSERT INTO reservas (id_reserva, id_cliente, data_inicio, data_fim)
+
+VALUES 
+
+  (1, 1, '2023-04-10', '2023-04-15'),
+
+  (2, 2, '2023-05-01', '2023-05-05'),
+
+  (3, 3, '2023-06-20', '2023-06-25');
+
+
+
+-- Vincular quartos às reservas
+
+INSERT INTO reservas_quartos (id_reserva, id_quarto, data_entrada, data_saida)
+
+VALUES 
+
+  (1, 1, '2023-04-10', '2023-04-15'),
+
+  (2, 2, '2023-05-01', '2023-05-05'),
+
+  (3, 3, '2023-06-20', '2023-06-25'),
+
+  (3, 2, '2023-06-20', '2023-06-25');
+
+
+
+--------------------------------------------------------------------------------
+
+4. QUESTIONÁRIO DE FIXAÇÃO E RESOLUÇÕES SQL
+
+--------------------------------------------------------------------------------
+
+
+
+01. Qual comando SQL apaga todas as reservas feitas antes de '2023-01-01'?
+
+    DELETE FROM reservas WHERE data_inicio < '2023-01-01';
+
+
+
+02. Qual comando SQL exibe todos os quartos com diária superior a 150?
+
+    SELECT * FROM quartos WHERE diaria > 150;
+
+
+
+03. Como inserir um novo quarto do tipo 'Suíte Presidencial' com capacidade para 4 pessoas e diária de 500?
+
+    INSERT INTO quartos (id_quarto, descricao, capacidade, diaria) VALUES (4, 'Suíte Presidencial', 4, 500.00);
+
+
+
+04. Qual é o comando SQL para deletar o hóspede com id_hospede = 4 do Sistema de um hotel?
+
+    DELETE FROM hospedes WHERE id_hospede = 4;
+
+
+
+05. Se um quarto é deletado da tabela 'quartos', o que acontece com as entradas correspondentes na tabela 'reservas_quartos'?
+
+    As entradas correspondentes em 'reservas_quartos' também serão deletadas, se houver uma cláusula de CASCADE DELETE.
+
+
+
+06. Qual é o comando SQL para encontrar o nome do cliente que fez a reserva mais longa?
+
+    SELECT nome_cliente FROM clientes JOIN reservas ON clientes.id_cliente = reservas.id_cliente ORDER BY (data_fim - data_inicio) DESC LIMIT 1;
+
+
+
+07. Como atualizar o número de telefone do cliente 'João Silva' na tabela 'clientes'?
+
+    UPDATE clientes SET telefone = '(11) 9999-9999' WHERE nome_cliente = 'João Silva';
+
+
+
+08. Qual comando SQL lista todos os clientes e seus respectivos endereços?
+
+    SELECT nome_cliente, endereco FROM clientes;
+
+
+
+09. Como encontrar o total de diárias pagas para o quarto com a descrição "Quarto simples com cama de solteiro"?
+
+    SELECT SUM(diaria) FROM quartos WHERE descricao = 'Quarto simples com cama de solteiro';
+
+
+
+10. Qual comando SQL lista os nomes dos clientes que têm um endereço em São Paulo?
+
+    SELECT nome_cliente FROM clientes WHERE endereco LIKE '%São Paulo%';
+
+
+
+11. Qual é o comando SQL para atualizar o telefone do hóspede com id_hospede = 2 para "(11) 98765-4321" no Sistema de um hotel?
+
+    UPDATE hospedes SET telefone = '(11) 98765-4321' WHERE id_hospede = 2;
+
+
+
+12. Qual comando exibe as datas de início e fim de todas as reservas?
+
+    SELECT data_inicio, data_fim FROM reservas;
+
+
+
+13. Qual comando SQL remove a reserva com id_reserva = 2 da tabela 'reservas'?
+
+    DELETE FROM reservas WHERE id_reserva = 2;
+
+
+
+14. Como encontrar o número médio de dias de todas as reservas?
+
+    SELECT AVG(data_fim - data_inicio) FROM reservas;
+
+
+
+15. Qual é o comando SQL para deletar todos os serviços de quarto do Sistema de um hotel?
+
+    DELETE FROM servicos_quarto;
+
+
+
+16. Qual é o comando SQL para deletar a reserva com id_reserva = 2 do Sistema de um hotel?
+
+    DELETE FROM reservas WHERE id_reserva = 2;
+
+
+
+17. Na tabela 'clientes', qual campo NÃO pode ser nulo?
+
+    id_cliente (além de nome_cliente, telefone, email e endereco, conforme definidos com NOT NULL).
+
+
+
+18. Qual é o comando SQL para atualizar o nome do hóspede com id_hospede = 1 para "Maria da Silva" no Sistema de um hotel?
+
+    UPDATE hospedes SET nome_hospede = 'Maria da Silva' WHERE id_hospede = 1;
+
+
+
+19. Qual tabela serve como chave estrangeira na tabela 'reservas'?
+
+    A tabela 'clientes' (através do campo id_cliente).
+
+
+
+20. Qual comando SQL lista todos os quartos que foram reservados mais de uma vez?
+
+    SELECT descricao FROM quartos WHERE id_quarto IN (SELECT id_quarto FROM reservas_quartos GROUP BY id_quarto HAVING COUNT(id_reserva) > 1);
+
+
+
+================================================================================
+
+Elaborado por: Bruno Cesar da Silva Garcia
+
+Aluno de Ciência da Computação e Administração de Banco de Dados
+
+================================================================================
