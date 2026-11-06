@@ -1,0 +1,72 @@
+01. Qual é o comando SQL correto para criar uma trigger chamada "update_qtde_estoque" que será acionada após a inserção de um novo item na tabela item_nota?
+a. CREATE TRIGGER update_qtde_estoque AFTER INSERT ON item_nota FOR EACH ROW EXECUTE FUNCTION update_qtde_estoque();
+
+
+
+02. Como selecionar a quantidade total de produtos vendidos em todas as notas fiscais?
+d. SELECT SUM(quantidade) FROM item_nota;   
+
+
+
+03. Qual é o comando SQL correto para excluir um funcionário específico na tabela funcionario?
+c. DELETE FROM funcionario WHERE cod_funcionario=1;   
+
+
+
+04. Qual é o comando SQL correto para inserir um novo cargo na tabela cargo?
+d. INSERT INTO cargo (cod_cargo, nome, salario_base) VALUES (1, 'Gerente', 5000);   
+
+
+
+05. Qual é o comando SQL correto para atualizar o valor do frete de uma nota fiscal específica na tabela nota_fiscal?
+c. UPDATE nota_fiscal SET valor_frete=60 WHERE cod_nota_fiscal=1;   
+
+
+
+06. Qual consulta retorna a quantidade total de produtos em estoque, agrupados por tipo de produto?
+d. SELECT tp.nome, SUM(p.qtde_estoque) FROM produto p JOIN tipo_produto tp ON p.cod_tipo_produto=tp.cod_tipo_produto GROUP BY tp.nome;   
+
+
+
+07. Como inserir um novo fabricante na tabela fabricante?
+a. INSERT INTO fabricante (cod_fabricante, nome, cidade, telefone) VALUES (1, 'Fabricante A', 'São Paulo', '11-1234-5678');   
+
+
+
+08. Como excluir um fabricante específico na tabela fabricante?
+c. DELETE FROM fabricante WHERE cod_fabricante=1;   
+
+
+
+09. Qual é o comando SQL correto para atualizar o salário base de um cargo específico na tabela cargo?
+d. UPDATE cargo SET salario_base=6000 WHERE cod_cargo=1;   
+
+
+
+10. Como excluir um item de nota fiscal específico na tabela item_nota?
+d. DELETE FROM item_nota WHERE cod_nota_fiscal=1 AND cod_produto=1;   
+
+
+
+11. Qual consulta retorna a soma do valor de todos os itens de nota fiscal?
+c. SELECT SUM(valor) FROM item_nota;   
+
+
+
+12. Qual é o comando SQL correto para excluir uma trigger chamada "delete_fabricante" na tabela fabricante?
+c. DROP TRIGGER delete_fabricante ON fabricante;   
+
+
+
+13. Como você pode atualizar a definição de uma VIEW chamada "funcionarios_cargo" para incluir a cidade do funcionário?
+c. ALTER VIEW funcionarios_cargo AS SELECT f.nome AS funcionario, c.nome AS cargo, f.cidade AS cidade FROM funcionario f INNER JOIN cargo c ON f.cod_cargo=c.cod_cargo;   
+
+
+
+14. Qual é o comando SQL correto para criar uma trigger chamada "check_funcionario" que será acionada antes de atualizar um registro na tabela funcionario?
+d. CREATE TRIGGER check_funcionario BEFORE UPDATE ON funcionario FOR EACH ROW EXECUTE FUNCTION check_funcionario();   
+
+
+
+15. Como atualizar o telefone de um fabricante específico na tabela fabricante?
+a. UPDATE fabricante SET telefone='11-5678-1234' WHERE cod_fabricante=1;   

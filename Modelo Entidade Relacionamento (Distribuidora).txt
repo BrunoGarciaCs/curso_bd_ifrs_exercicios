@@ -1,0 +1,78 @@
+-- 1. Tabela Fabricante
+CREATE TABLE Fabricante (
+    cod_fabricante INTEGER NOT NULL,
+    nome VARCHAR(100),
+    cidade VARCHAR(100),
+    telefone VARCHAR(20),
+    CONSTRAINT PK_Fabricante PRIMARY KEY (cod_fabricante)
+);
+
+-- 2. Tabela Tipo_Produto
+CREATE TABLE Tipo_Produto (
+    cod_tipo_produto INTEGER NOT NULL,
+    nome VARCHAR(100),
+    CONSTRAINT PK_Tipo_Produto PRIMARY KEY (cod_tipo_produto)
+);
+
+-- 3. Tabela Cargo
+CREATE TABLE Cargo (
+    cod_cargo INTEGER NOT NULL,
+    nome VARCHAR(100),
+    salario_base DOUBLE PRECISION,
+    CONSTRAINT PK_Cargo PRIMARY KEY (cod_cargo)
+);
+
+-- 4. Tabela Transportadora
+CREATE TABLE Transportadora (
+    cod_transportadora INTEGER NOT NULL,
+    nome VARCHAR(100),
+    CONSTRAINT PK_Transportadora PRIMARY KEY (cod_transportadora)
+);
+
+-- 5. Tabela Funcionario
+CREATE TABLE Funcionario (
+    cod_funcionario INTEGER NOT NULL,
+    cod_cargo INTEGER NOT NULL,
+    nome VARCHAR(100),
+    cidade VARCHAR(100),
+    ano_contratacao INTEGER,
+    CONSTRAINT PK_Funcionario PRIMARY KEY (cod_funcionario),
+    CONSTRAINT FK_Funcionario_Cargo FOREIGN KEY (cod_cargo) REFERENCES Cargo(cod_cargo)
+);
+
+-- 6. Tabela Produto
+CREATE TABLE Produto (
+    cod_produto INTEGER NOT NULL,
+    cod_tipo_produto INTEGER NOT NULL,
+    cod_fabricante INTEGER NOT NULL,
+    nome VARCHAR(100),
+    peso VARCHAR(50),
+    medida VARCHAR(50),
+    preco DOUBLE PRECISION,
+    qtde_estoque INTEGER,
+    CONSTRAINT PK_Produto PRIMARY KEY (cod_produto),
+    CONSTRAINT FK_Produto_Tipo_Produto FOREIGN KEY (cod_tipo_produto) REFERENCES Tipo_Produto(cod_tipo_produto),
+    CONSTRAINT FK_Produto_Fabricante FOREIGN KEY (cod_fabricante) REFERENCES Fabricante(cod_fabricante)
+);
+
+-- 7. Tabela Nota_fiscal
+CREATE TABLE Nota_fiscal (
+    cod_nota_fiscal INTEGER NOT NULL,
+    cod_transportadora INTEGER NOT NULL,
+    cod_funcionario INTEGER NOT NULL,
+    valor_frete DOUBLE PRECISION,
+    CONSTRAINT PK_Nota_fiscal PRIMARY KEY (cod_nota_fiscal),
+    CONSTRAINT FK_Nota_fiscal_Transportadora FOREIGN KEY (cod_transportadora) REFERENCES Transportadora(cod_transportadora),
+    CONSTRAINT FK_Nota_fiscal_Funcionario FOREIGN KEY (cod_funcionario) REFERENCES Funcionario(cod_funcionario)
+);
+
+-- 8. Tabela Item_Nota (Entidade associativa entre Nota_fiscal e Produto)
+CREATE TABLE Item_Nota (
+    cod_nota_fiscal INTEGER NOT NULL,
+    cod_produto INTEGER NOT NULL,
+    quantidade INTEGER,
+    valor_unitario DOUBLE PRECISION,
+    CONSTRAINT PK_Item_Nota PRIMARY KEY (cod_nota_fiscal, cod_produto),
+    CONSTRAINT FK_Item_Nota_Nota_fiscal FOREIGN KEY (cod_nota_fiscal) REFERENCES Nota_fiscal(cod_nota_fiscal),
+    CONSTRAINT FK_Item_Nota_Produto FOREIGN KEY (cod_produto) REFERENCES Produto(cod_produto)
+);
